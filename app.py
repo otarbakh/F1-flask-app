@@ -5,13 +5,16 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    # For simplicity, we'll hard-code some sample data for Formula 1
-    drivers = [
-        {'name': 'Lewis Hamilton', 'team': 'Mercedes', 'position': 1},
-        {'name': 'Max Verstappen', 'team': 'Red Bull Racing', 'position': 2},
-        {'name': 'Charles Leclerc', 'team': 'Ferrari', 'position': 3},
-    ]
-    return render_template('index.html', drivers=drivers)
+    url = "http://ergast.com/api/f1/current/driverStandings.json"
+    res = requests.get(url).json()
+
+    drivers = res['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']
+    return render_template("index.html", drivers=[{
+        "position": d["position"],
+        "givenName": d["Driver"]["givenName"],
+        "familyName": d["Driver"]["familyName"],
+        "points": d["points"]
+    } for d in drivers])
 
 if __name__ == '__main__':
     app.run(debug=True)
