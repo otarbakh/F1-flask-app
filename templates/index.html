@@ -6,8 +6,8 @@
     <title>Formula 1 Standings</title>
 </head>
 <body>
-    <h1>Formula 1 Standings</h1>
-    <ul>
+    <h1>🏁 Formula 1 Live Standings</h1>
+    <div class="card">
         {% for driver in drivers %}
             <li>{{ driver.position }} - {{ driver.name }} ({{ driver.team }})</li>
         {% endfor %}
