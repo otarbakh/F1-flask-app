@@ -5,15 +5,13 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    # Fetch the data from Ergast API
     url = "https://ergast.com/api/f1/current/driverStandings.json"
     response = requests.get(url)
-    data = response.json()  # Parse the JSON response
+    data = response.json()  
 
-    # Extract the standings information from the response
+
     standings = data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']
 
-    # Prepare the data for display
     drivers = []
     for driver in standings:
         position = driver['position']
