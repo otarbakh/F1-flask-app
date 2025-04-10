@@ -4,17 +4,27 @@ import requests
 app = Flask(__name__)
 
 @app.route('/')
-def index():
-    url = "http://ergast.com/api/f1/current/driverStandings.json"
-    res = requests.get(url).json()
+def home():
+    # Fetch live driver standings from the Ergast API
+    standings = get_driver_standings()
+    return render_template('index.html', standings=standings)
 
-    drivers = res['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']
-    return render_template("index.html", drivers=[{
-        "position": d["position"],
-        "givenName": d["Driver"]["givenName"],
-        "familyName": d["Driver"]["familyName"],
-        "points": d["points"]
-    } for d in drivers])
+def get_driver_standings():
+    url = "https://ergast.com/api/f1/current/driverStandings.json"
+    response = requests.get(url)
+    data = response.json()
+
+    standings = []
+    for driver in data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings']:
+        driver_info = {
+            "position": driver['position'],
+            "name": f"{driver['Driver']['givenName']} {driver['Driver']['familyName']}",
+            "constructor": driver['Constructors'][0]['name'],
+            "points": driver['points']
+        }
+        standings.append(driver_info)
+    
+    return standings
 
 if __name__ == '__main__':
     app.run(debug=True)
