@@ -1,55 +1,31 @@
 provider "aws" {
-  region = var.aws_region
+  region = "us-east-1"
 }
 
-resource "aws_instance" "flask_app" {
-  ami           = "ami-0c2b8ca1dad447f8a"  # Amazon Linux 2 AMI in us-east-1
-  instance_type = var.instance_type
-  key_name      = var.key_name
-
-  vpc_security_group_ids = [aws_security_group.allow_ssh_http.id]
-
-  user_data = <<-EOF
-              #!/bin/bash
-              sudo yum update -y
-              sudo yum install -y docker git
-              sudo service docker start
-              sudo usermod -a -G docker ec2-user
-              docker run -d -p 80:5000 otarbakh/flask-f1-app
-              EOF
+resource "aws_instance" "f1_flask_app" {
+  ami           = "ami-0c02fb55956c7d316" # Amazon Linux 2 AMI for us-east-1 (make sure it is correct)
+  instance_type = "t2.micro"
 
   tags = {
-    Name = "FlaskF1App"
-  }
-}
-
-resource "aws_security_group" "allow_ssh_http" {
-  name        = "allow_ssh_http"
-  description = "Allow SSH and HTTP traffic"
-  vpc_id      = data.aws_vpc.default.id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["${var.my_ip}/32"]
+    Name = "F1-Flask-App"
   }
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum update -y",
+      "sudo yum install docker -y",
+      "sudo systemctl start docker",
+      "sudo systemctl enable docker",
+      "docker run -d -p 80:5000 yourdockerhubusername/f1-flask-app" # Replace this with your Docker Hub username and image
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file("/path/to/your-key.pem") # Replace with the actual path to your private key
+      host        = self.public_ip
+    }
   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-data "aws_vpc" "default" {
-  default = true
+  key_name = "f1-key"
 }
