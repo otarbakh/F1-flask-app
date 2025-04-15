@@ -50,6 +50,7 @@ resource "aws_instance" "f1_flask_app" {
     Name = "F1-Flask-App"
   }
 
+
   provisioner "remote-exec" {
     inline = [
       "sudo yum update -y",
