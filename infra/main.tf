@@ -1,4 +1,3 @@
-
 data "aws_vpc" "default" {
   default = true
 }
@@ -50,14 +49,13 @@ resource "aws_instance" "f1_flask_app" {
     Name = "F1-Flask-App"
   }
 
-
   provisioner "remote-exec" {
     inline = [
       "sudo yum update -y",
       "sudo yum install docker -y",
       "sudo systemctl start docker",
       "sudo systemctl enable docker",
-      "docker run -d -p 80:5000 yourdockerhubusername/f1-flask-app" # Replace with your actual Docker Hub image
+      "sudo docker run -d -p 80:5000 otarbakhtadze/f1-flask-app"
     ]
 
     connection {
